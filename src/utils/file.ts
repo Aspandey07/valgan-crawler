@@ -42,8 +42,8 @@ export function calculateFileHash(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
     const stream = fs.createReadStream(filePath);
-    stream.on('data', (data: Buffer) => hash.update(data));
-    stream.on('end', () => resolve(hash.digest('hex')));
-    stream.on('error', (err: Error) => reject(err));
+    stream.on('data', (data: any) => { hash.update(data); });
+    stream.on('end', () => { resolve(hash.digest('hex')); });
+    stream.on('error', (err: any) => { reject(err); });
   });
 }

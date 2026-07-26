@@ -35,7 +35,7 @@ async function setupDatabase() {
       // Ignore if index already exists
     }
   } catch (err) {
-    logger.error('Failed to setup database schema:', err);
+    logger.error({ err }, 'Failed to setup database schema');
   }
 }
 
