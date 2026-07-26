@@ -241,8 +241,8 @@
             <p>Reviewer Access Portal</p>
             
             <div class="input-group">
-                <label>Security Key</label>
-                <input type="password" id="apiKeyInput" placeholder="Enter API Key...">
+                <label>Security Key (Hint: valgan-secret-key-2026)</label>
+                <input type="password" id="apiKeyInput" placeholder="Enter API Key..." onkeypress="handleLoginEnter(event)">
             </div>
             
             <button onclick="handleLogin()">Secure Login</button>
@@ -327,6 +327,12 @@
         function handleEnter(e) {
             if (e.key === 'Enter') {
                 fetchTenders();
+            }
+        }
+
+        function handleLoginEnter(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
             }
         }
 
