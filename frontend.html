@@ -242,7 +242,7 @@
             
             <div class="input-group">
                 <label>Security Key</label>
-                <input type="password" id="apiKeyInput" placeholder="Enter API Key..." value="valgan-secret-key-2026">
+                <input type="password" id="apiKeyInput" placeholder="Enter API Key...">
             </div>
             
             <button onclick="handleLogin()">Secure Login</button>
@@ -314,7 +314,8 @@
             currentApiKey = '';
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboardScreen').style.display = 'none';
-            document.getElementById('apiKeyInput').value = 'valgan-secret-key-2026';
+            document.getElementById('apiKeyInput').value = '';
+            document.getElementById('searchInput').value = '';
         }
 
         function showError(msg) {
