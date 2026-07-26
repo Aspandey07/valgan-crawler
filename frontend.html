@@ -379,7 +379,11 @@
                         </td>
                         <td><span class="tag">${item.department}</span></td>
                         <td>${date}</td>
-                        <td><a href="${item.link}" target="_blank">View PDF</a></td>
+                        <td>
+                            <a href="${item.pdfUrl || item.detailUrl || '#'}" target="_blank" class="tag" style="text-decoration: none; color: white;">
+                                ${item.pdfUrl ? 'View PDF' : 'View Details'}
+                            </a>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
