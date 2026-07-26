@@ -6,7 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "dev": "nodemon src/server.ts",
-    "build": "npx prisma generate && npx prisma db push --accept-data-loss && tsc",
+    "build": "npx prisma generate && tsc",
     "start": "node dist/server.js",
     "crawl": "ts-node src/crawl.ts",
     "seed": "ts-node src/seed.ts",
