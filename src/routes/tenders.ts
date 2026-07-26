@@ -21,6 +21,7 @@ const router = Router();
 router.use(requireApiKey);
 
 router.get('/', searchTenders);
+router.get('/search', searchTenders);
 router.post('/', upload.single('document'), createTender);
 router.get('/:id', getTenderDetails);
 

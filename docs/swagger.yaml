@@ -4,10 +4,27 @@ info:
   version: 1.0.0
   description: API for retrieving crawled procurement tenders.
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: /api/v1
+    description: Current Environment
 security:
   - ApiKeyAuth: []
 paths:
+  /health:
+    get:
+      summary: Basic Health Check
+      security: []
+      responses:
+        '200':
+          description: OK
+  /../health/ready:
+    get:
+      summary: Database Readiness Check
+      security: []
+      responses:
+        '200':
+          description: OK
+        '503':
+          description: Service Unavailable
   /tenders:
     get:
       summary: Search tenders

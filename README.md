@@ -1,96 +1,149 @@
-# Valgan Procurement Crawler POC
+# Valgan Procurement Data Platform
 
-This repository contains a full-stack proof-of-concept web crawler and API server built for the Valgan technical hiring assessment.
+A robust, production-ready backend service designed to crawl, extract, and serve government procurement tenders. Built as a technical assessment for the Founding Data Platform Engineer role at Valgan.
 
-## Project Overview
-The solution crawls government procurement portals to extract tender details, downloads associated documentation (PDFs), stores normalized data in PostgreSQL, and exposes a REST API for searching.
+## 🚀 Reviewer Quick Start (Under 2 Minutes)
 
-**Selected Portal**: [UK Contracts Finder](https://www.contractsfinder.service.gov.uk/Search)
+Once the application is deployed, you can immediately test the entire workflow:
 
-## Prerequisites
-- Node.js 18+ (fetch API)
-- Docker & Docker Compose (for PostgreSQL)
+1. **Open the Live Frontend UI:**
+   Navigate to the root URL (e.g., `https://YOUR_DEPLOYED_URL/`) in your browser to access the visual testing interface.
 
-## Tech Stack
-- **Language**: TypeScript (Node.js)
-- **Database**: PostgreSQL (with Prisma ORM)
-- **Web Scraping**: Cheerio, native `fetch`
-- **API Server**: Express.js
-- **Validation**: Zod
-- **Logging**: Pino
-- **Documentation**: Swagger UI / OpenAPI 3.0
+2. **Open Swagger Documentation:**
+   Navigate to `/api-docs` (e.g., `https://YOUR_DEPLOYED_URL/api-docs`) to explore the interactive API documentation.
 
-## Setup & Installation
+3. **Authorize the API:**
+   - In Swagger UI, click the **Authorize** button.
+   - Enter the test API key: `valgan-secret-key-2026`
+   - (Or use the API Key input field in the Frontend UI).
 
-1. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
+4. **Search Tenders:**
+   - Execute a `GET /api/v1/tenders/search?q=services` request in Swagger or the Frontend UI to see paginated results.
 
-2. **Setup Environment:**
-   ```bash
-   cp .env.example .env
-   ```
+5. **View Tender Details:**
+   - Copy a `tenderId` from the search results and execute `GET /api/v1/tenders/{id}` to view full extraction details, including the SHA-256 document hash.
 
-3. **Start PostgreSQL via Docker Compose:**
-   ```bash
-   docker-compose up -d
-   ```
+6. **Import Postman Collection:**
+   - Download the `valgan_postman_collection.json` from the repository root.
+   - Import it into Postman.
+   - Set the `baseUrl` collection variable to the deployed URL.
 
-4. **Run Database Migrations:**
-   ```bash
-   npm run prisma:migrate
-   ```
+---
 
-## Execution Commands
+## 🛠️ Project Overview
 
-**Run the Crawler (Extract data & PDFs):**
-```bash
-npm run crawl
+This platform acts as a centralized repository for public procurement data. 
+
+**Key Features:**
+- **Automated Crawler:** Extracts structured data and raw JSON from UK Contracts Finder.
+- **Idempotent Upserts:** Prevents duplicate records using Composite Unique Constraints (`portalName` + `tenderId`) in PostgreSQL.
+- **Smart PDF Processing:** Streams document downloads directly to disk, generating SHA-256 hashes to prevent duplicate file storage.
+- **REST APIs:** Secured, paginated, and searchable endpoints for downstream consumption.
+- **API Key Security:** Lightweight `x-api-key` middleware for secure reviewer testing.
+
+---
+
+## 🏗️ Architecture Summary
+
+- **Backend:** Node.js, Express.js, TypeScript
+- **Database:** PostgreSQL (with Prisma ORM)
+- **Scraping:** Cheerio (fast HTML parsing), native fetch
+- **Validation:** Zod (strict runtime type checking)
+- **Logging:** Pino (structured JSON logging)
+- **Documentation:** OpenAPI 3.x (Swagger UI)
+
+*The system uses an Adapter Pattern (`ProcurementCrawler` interface) allowing seamless integration of new portals (e.g., US SAM, Indian CPP) without modifying the core API logic.*
+
+---
+
+## 🌍 Deployment & Setup
+
+This application is designed to be deployed to any modern cloud provider (Render, Railway, VPS, Hostinger) with an external PostgreSQL database (Neon.tech, Supabase).
+
+### Required Environment Variables
+
+Create a `.env` file (see `.env.example`) with the following:
+
+```env
+NODE_ENV=production
+PORT=3000
+DATABASE_URL=postgresql://user:pass@host:5432/db?schema=public
+API_KEY=valgan-secret-key-2026
+CORS_ORIGIN=*
+LOG_LEVEL=info
+CRAWL_RECORD_LIMIT=5
 ```
 
-**Run the REST API Server (Dev mode):**
+### 1. Build and Deploy
+
 ```bash
+# Install production dependencies
+npm ci
+
+# Generate Prisma client
+npx prisma generate
+
+# Apply database migrations to the production DB
+npm run prisma:deploy
+
+# Build TypeScript
+npm run build
+
+# Start the server
+npm start
+```
+
+### 2. Populate Sample Data (For Reviewers)
+
+To ensure the system isn't empty, you can run the safe seed script. This executes a controlled, 1-page crawl of the real UK Contracts Finder to populate authentic sample data.
+
+```bash
+# Seed the database with sample data
+npm run seed
+```
+
+*(Alternatively, run a full crawl with `npm run crawl`)*
+
+> **Note on Storage:** Downloaded PDFs are stored in the `./downloads` directory. On ephemeral hosting (like Render's free tier), these files may be lost between deployments. For a true production environment, an S3-compatible storage adapter should be implemented.
+
+---
+
+## 🧪 API Usage & `curl` Examples
+
+### Health Check (Public)
+```bash
+curl https://YOUR_DEPLOYED_URL/health/ready
+```
+
+### List Tenders (Authenticated)
+```bash
+curl \
+  -H "x-api-key: valgan-secret-key-2026" \
+  "https://YOUR_DEPLOYED_URL/api/v1/tenders?page=1&limit=10"
+```
+
+### Search Tenders (Authenticated)
+```bash
+curl \
+  -H "x-api-key: valgan-secret-key-2026" \
+  "https://YOUR_DEPLOYED_URL/api/v1/tenders/search?q=construction"
+```
+
+---
+
+## 🔒 Security Note
+
+Authentication is implemented via a static `x-api-key` header to satisfy the reviewer testing requirements without the unnecessary overhead of a full user management system (JWT/OAuth).
+
+---
+
+## 🐋 Docker Setup (Local Development)
+
+A `docker-compose.yml` is provided for immediate local PostgreSQL setup.
+
+```bash
+docker-compose up -d postgres
+npm install
+npm run prisma:migrate
 npm run dev
 ```
-*Note: The API runs on `http://localhost:3000` by default. Swagger docs are available at `http://localhost:3000/api-docs`.*
-
-**Run Tests:**
-```bash
-npm run test
-```
-
-## Known Limitations
-- The Cheerio selectors target specific HTML classes on the UK Contracts Finder portal. If the government changes their CSS, the parser will require an update.
-- The crawler is rate-limited via a basic `setTimeout` (configurable via `REQUEST_DELAY_MS` in `.env`). In production, a distributed queue like RabbitMQ would handle concurrency and proxy rotation.
-
-## Screenshots
-Visual evidence of the crawler execution, PostgreSQL data, and the Swagger API are available in the `/screenshots/` directory.
-
-## Scalability
-The system is designed with extensibility in mind. For scaling to thousands of websites:
-- Crawler execution can be decoupled using a robust message queue (e.g., RabbitMQ).
-- Distributed workers utilizing residential proxy networks to avoid rate-limiting.
-- Cloud object storage (AWS S3) replacing the local PDF storage layer.
-
-## Future Improvements
-- Incremental crawling using change detection.
-- Distributed scheduling and workload balancing.
-- Comprehensive metrics collection (Prometheus/Grafana).
-- Automated integration tests against sample procurement portals.
-
-## Project Structure
-- `/src/crawlers/core`: Abstract interface and base utilities for crawling.
-- `/src/crawlers/portals`: Specific portal implementations (e.g. UKContractsFinder).
-- `/src/controllers` & `/src/routes`: Express route handlers and controller logic.
-- `/src/validators`: Zod schema definitions.
-- `/src/database`: Prisma ORM client instance.
-- `/docs/`: Architectural documentation and schemas.
-- `/screenshots/`: Visual evidence of crawler and API execution.
-
-## Documentation
-- [Architecture](docs/architecture.md)
-- [Engineering Decisions](docs/engineering-decisions.md)
-- [Database Schema](docs/database-schema.md)
-- [API Documentation](docs/api.md)
-- [AI Tool Usage](docs/ai-usage.md)

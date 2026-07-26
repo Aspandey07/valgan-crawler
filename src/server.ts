@@ -3,8 +3,14 @@ import { env } from './config/env';
 import { logger } from './utils/logger';
 import { prisma } from './database';
 
-const server = app.listen(env.PORT, () => {
-  logger.info(`Server is running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+const PORT = Number(env.PORT) || 3000;
+const HOST = '0.0.0.0';
+
+const server = app.listen(PORT, HOST, () => {
+  logger.info(`Server is running on http://${HOST}:${PORT} in ${env.NODE_ENV} mode`);
+}).on('error', (err) => {
+  logger.fatal({ err }, 'Failed to start server');
+  process.exit(1);
 });
 
 // Graceful shutdown

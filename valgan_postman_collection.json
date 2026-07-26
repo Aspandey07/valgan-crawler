@@ -7,103 +7,99 @@
   },
   "item": [
     {
-      "name": "Get All Tenders",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "x-api-key",
-            "value": "{{apiKey}}",
-            "type": "text"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/tenders?page=1&limit=10",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "tenders"
-          ],
-          "query": [
-            {
-              "key": "page",
-              "value": "1",
-              "description": "Page number for pagination"
+      "name": "Health",
+      "item": [
+        {
+          "name": "Basic Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
             },
-            {
-              "key": "limit",
-              "value": "10",
-              "description": "Number of items per page"
-            }
-          ]
+            "description": "Checks if the server is running."
+          }
         },
-        "description": "Retrieve a paginated list of all procurement tenders."
-      },
-      "response": []
+        {
+          "name": "Readiness Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["health", "ready"]
+            },
+            "description": "Checks if the database is connected."
+          }
+        }
+      ]
     },
     {
-      "name": "Search Tenders",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "x-api-key",
-            "value": "{{apiKey}}",
-            "type": "text"
-          }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/tenders/search?q=services",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "tenders",
-            "search"
-          ],
-          "query": [
-            {
-              "key": "q",
-              "value": "services",
-              "description": "Search query to match against title or description"
+      "name": "Tenders",
+      "item": [
+        {
+          "name": "Get All Tenders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tenders?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tenders"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
             }
-          ]
-        },
-        "description": "Search for specific tenders using a keyword query."
-      },
-      "response": []
-    },
-    {
-      "name": "Get Tender by ID",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "x-api-key",
-            "value": "{{apiKey}}",
-            "type": "text"
           }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/tenders/replace_with_actual_uuid",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "tenders",
-            "replace_with_actual_uuid"
-          ]
         },
-        "description": "Retrieve detailed information about a specific tender by its UUID."
-      },
-      "response": []
+        {
+          "name": "Search Tenders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tenders/search?q=services",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tenders", "search"],
+              "query": [
+                { "key": "q", "value": "services" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Tender by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tenders/{{tenderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tenders", "{{tenderId}}"]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
@@ -115,6 +111,11 @@
     {
       "key": "apiKey",
       "value": "valgan-secret-key-2026",
+      "type": "string"
+    },
+    {
+      "key": "tenderId",
+      "value": "replace-with-actual-uuid",
       "type": "string"
     }
   ]

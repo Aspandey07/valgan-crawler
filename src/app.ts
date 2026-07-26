@@ -7,11 +7,14 @@ import path from 'path';
 import { logger } from './utils/logger';
 import tenderRoutes from './routes/tenders';
 import { Prisma } from '@prisma/client';
+import { ZodError } from 'zod';
+import { prisma } from './database';
+import { env } from './config/env';
 
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(',') }));
 app.use(express.json({ limit: '100kb' }));
 
 // Request logging middleware
@@ -30,10 +33,30 @@ try {
 
 // Routes
 app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    service: 'valgan-procurement-platform',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+app.get('/health/ready', async (req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', database: 'connected' });
+  } catch (error) {
+    logger.error({ err: error }, 'Database health check failed');
+    res.status(503).json({ status: 'error', database: 'disconnected' });
+  }
 });
 
 app.use('/api/v1/tenders', tenderRoutes);
+
+// Serve frontend
+app.get('/', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, '../../frontend.html'));
+});
 
 // Error handling middleware
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -43,8 +66,22 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     return res.status(400).json({
       success: false,
-      message: 'Database operation failed',
-      code: err.code
+      error: {
+        code: 'DATABASE_ERROR',
+        message: 'Database operation failed',
+        details: [err.code]
+      }
+    });
+  }
+
+  if (err instanceof ZodError) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid request parameters',
+        details: err.issues
+      }
     });
   }
 
@@ -55,8 +92,11 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
   
   res.status(status).json({
     success: false,
-    message: status === 500 && isProd ? 'Internal Server Error' : (e.message || 'Internal Server Error'),
-    errors: isProd ? undefined : e.errors,
+    error: {
+      code: status === 500 ? 'INTERNAL_ERROR' : 'API_ERROR',
+      message: status === 500 && isProd ? 'Internal Server Error' : (e.message || 'Internal Server Error'),
+      details: isProd ? [] : e.errors || []
+    }
   });
 });
 

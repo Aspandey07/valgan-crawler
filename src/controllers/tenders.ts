@@ -62,7 +62,14 @@ export async function getTenderDetails(req: Request, res: Response, next: NextFu
     });
 
     if (!tender) {
-      return res.status(404).json({ success: false, message: 'Tender not found' });
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Tender not found',
+          details: []
+        }
+      });
     }
 
     res.json({ success: true, data: tender });
