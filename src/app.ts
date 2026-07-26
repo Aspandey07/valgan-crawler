@@ -55,6 +55,7 @@ app.use('/api/v1/tenders', tenderRoutes);
 
 // Serve frontend
 app.get('/', (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.sendFile(path.join(__dirname, '../frontend.html'));
 });
 
