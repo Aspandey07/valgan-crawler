@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tender {
+  id              String    @id @default(uuid())
+  portalName      String
+  sourceUrl       String
+  tenderId        String
+  title           String
+  department      String
+  closingDate     DateTime?
+  tenderValue     Float?
+  currency        String?
+  detailUrl       String
+  pdfUrl          String?
+  localPdfPath    String?
+  documentHash    String?
+  status          String?
+  rawData         Json
+  firstSeenAt     DateTime  @default(now())
+  lastSeenAt      DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([portalName, tenderId])
+  @@index([title])
+  @@index([department])
+  @@index([closingDate])
+  @@index([portalName])
+}

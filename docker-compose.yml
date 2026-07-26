@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: valgan-postgres
+    environment:
+      POSTGRES_USER: valgan
+      POSTGRES_PASSWORD: valgan_password
+      POSTGRES_DB: procurement_tenders
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: valgan-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://valgan:valgan_password@postgres:5432/procurement_tenders?schema=public
+      - CRAWL_RECORD_LIMIT=20
+      - REQUEST_DELAY_MS=1000
+      - DOWNLOAD_DIR=downloads
+    depends_on:
+      - postgres
+    volumes:
+      - ./downloads:/app/downloads
+
+volumes:
+  postgres_data:
