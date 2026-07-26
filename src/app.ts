@@ -51,6 +51,31 @@ app.get('/health/ready', async (req: Request, res: Response) => {
   }
 });
 
+import { exec } from 'child_process';
+app.get('/api/seed', (req: Request, res: Response) => {
+  // Allow API key via header OR query parameter for easy browser testing
+  const authHeader = req.headers.authorization;
+  const queryKey = req.query.key;
+  
+  if (
+    (!authHeader || !authHeader.includes(env.API_KEY)) && 
+    queryKey !== env.API_KEY
+  ) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  res.json({ status: 'Seeding started in background, check logs.' });
+
+  logger.info('Starting database seed from API route...');
+  exec('node dist/seed.js', (error, stdout, stderr) => {
+    if (error) {
+      logger.error({ err: error, stderr }, 'Failed to run seed script');
+      return;
+    }
+    logger.info({ stdout }, 'Seed script completed successfully');
+  });
+});
+
 app.use('/api/v1/tenders', tenderRoutes);
 
 // Serve frontend
