@@ -5,6 +5,8 @@ info:
   description: API for retrieving crawled procurement tenders.
 servers:
   - url: http://localhost:3000/api/v1
+security:
+  - ApiKeyAuth: []
 paths:
   /tenders:
     get:
@@ -106,6 +108,11 @@ paths:
           description: Tender not found
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
   schemas:
     Tender:
       type: object

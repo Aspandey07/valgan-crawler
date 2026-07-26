@@ -1,0 +1,121 @@
+{
+  "info": {
+    "_postman_id": "c1a2b3c4-d5e6-7f8g-9h0i-j1k2l3m4n5o6",
+    "name": "Valgan Procurement API",
+    "description": "API endpoints for the Valgan Procurement Crawler Assessment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Tenders",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/tenders?page=1&limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tenders"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1",
+              "description": "Page number for pagination"
+            },
+            {
+              "key": "limit",
+              "value": "10",
+              "description": "Number of items per page"
+            }
+          ]
+        },
+        "description": "Retrieve a paginated list of all procurement tenders."
+      },
+      "response": []
+    },
+    {
+      "name": "Search Tenders",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/tenders/search?q=services",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tenders",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "services",
+              "description": "Search query to match against title or description"
+            }
+          ]
+        },
+        "description": "Search for specific tenders using a keyword query."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Tender by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/tenders/replace_with_actual_uuid",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tenders",
+            "replace_with_actual_uuid"
+          ]
+        },
+        "description": "Retrieve detailed information about a specific tender by its UUID."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "valgan-secret-key-2026",
+      "type": "string"
+    }
+  ]
+}

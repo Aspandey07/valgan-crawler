@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { searchTenders, getTenderDetails, createTender } from '../controllers/tenders';
+import { requireApiKey } from '../middlewares/auth';
 import multer from 'multer';
 import path from 'path';
 
@@ -16,6 +17,8 @@ const upload = multer({
 });
 
 const router = Router();
+
+router.use(requireApiKey);
 
 router.get('/', searchTenders);
 router.post('/', upload.single('document'), createTender);
