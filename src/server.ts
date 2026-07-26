@@ -18,17 +18,38 @@ async function setupDatabase() {
           "description" TEXT,
           "department" TEXT NOT NULL,
           "closingDate" TIMESTAMP(3),
+          "tenderValue" DOUBLE PRECISION,
+          "currency" TEXT,
           "sourceUrl" TEXT NOT NULL,
           "detailUrl" TEXT NOT NULL,
+          "pdfUrl" TEXT,
           "localPdfPath" TEXT,
           "documentHash" TEXT,
-          "rawData" JSONB,
+          "status" TEXT,
+          "rawData" JSONB NOT NULL,
+          "firstSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
           "updatedAt" TIMESTAMP(3) NOT NULL,
           CONSTRAINT "Tender_pkey" PRIMARY KEY ("id")
       );
     `);
     
+    // Add missing columns if table was created with old schema
+    try {
+      await prisma.$executeRawUnsafe(`
+        ALTER TABLE "Tender" 
+        ADD COLUMN IF NOT EXISTS "tenderValue" DOUBLE PRECISION,
+        ADD COLUMN IF NOT EXISTS "currency" TEXT,
+        ADD COLUMN IF NOT EXISTS "pdfUrl" TEXT,
+        ADD COLUMN IF NOT EXISTS "status" TEXT,
+        ADD COLUMN IF NOT EXISTS "firstSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN IF NOT EXISTS "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+      `);
+    } catch(e) {
+      // Ignore if columns already exist
+    }
+
     try {
       await prisma.$executeRawUnsafe(`CREATE UNIQUE INDEX "Tender_portalName_tenderId_key" ON "Tender"("portalName", "tenderId");`);
     } catch (e) {
