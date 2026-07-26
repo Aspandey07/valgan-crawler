@@ -23,11 +23,12 @@ export function getSafeFilename(url: string, prefix: string = ''): string {
  * @returns The absolute path where the file was saved.
  */
 export function saveFile(buffer: Buffer, filename: string): string {
-  if (!fs.existsSync(env.DOWNLOAD_DIR)) {
-    fs.mkdirSync(env.DOWNLOAD_DIR, { recursive: true });
+  const downloadDir = env.DOWNLOAD_DIR || './downloads';
+  if (!fs.existsSync(downloadDir)) {
+    fs.mkdirSync(downloadDir, { recursive: true });
   }
   
-  const filePath = path.join(env.DOWNLOAD_DIR, filename);
+  const filePath = path.join(downloadDir, filename);
   fs.writeFileSync(filePath, buffer);
   return filePath;
 }
@@ -41,8 +42,8 @@ export function calculateFileHash(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
     const stream = fs.createReadStream(filePath);
-    stream.on('data', (data) => hash.update(data));
+    stream.on('data', (data: Buffer) => hash.update(data));
     stream.on('end', () => resolve(hash.digest('hex')));
-    stream.on('error', (err) => reject(err));
+    stream.on('error', (err: Error) => reject(err));
   });
 }
