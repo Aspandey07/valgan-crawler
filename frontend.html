@@ -168,11 +168,13 @@
             background: var(--surface);
             border-radius: 12px;
             border: 1px solid var(--border);
-            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
+            min-width: 700px;
             border-collapse: collapse;
             text-align: left;
         }
@@ -229,6 +231,29 @@
             font-size: 13px;
             margin-top: 10px;
             display: none;
+        }
+
+        @media (max-width: 640px) {
+            #dashboardScreen {
+                padding: 16px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            .header-actions {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .search-container {
+                flex-direction: column;
+            }
+            .search-container button {
+                width: 100%;
+            }
         }
     </style>
 </head>
